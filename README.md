@@ -285,7 +285,7 @@ La aplicación se integra con la API pública de Star Wars: https://www.swapi.te
 | title        | String    | Título de la película          |
 | episodeId    | Int       | Número de episodio             |
 | director     | String    | Director                       |
-| producer     | String    | Productor/es                   |
+| producer     | String    | Productor                      |
 | releaseDate  | DateTime  | Fecha de lanzamiento           |
 | openingCrawl | Text      | Texto de apertura              |
 | externalId   | String?   | ID externo de SWAPI            |
