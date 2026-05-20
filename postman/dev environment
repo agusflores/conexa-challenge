@@ -1,0 +1,22 @@
+{
+	"id": "2467a813-fe9f-49c1-9da4-abd8b31d4c15",
+	"name": "Conexa - Challenge (Dev)",
+	"values": [
+		{
+			"key": "base_url",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"color": 240,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-05-20T16:07:55.337Z",
+	"_postman_exported_using": "Postman/12.10.6"
+}
