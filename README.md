@@ -327,5 +327,32 @@ Render es una plataforma de cloud que permite deployar aplicaciones backend de f
 
 Neon es una base de datos PostgreSQL serverless en la nube.
 
+---
+
+## 🧪 Colección de Postman
+
+En la carpeta `postman/` encontrarás una colección ready-to-use con los dos environments configurados:
+
+```
+postman/
+├── collection/        # Collection con todos los endpoints
+├── dev environment/   # Environment para desarrollo (localhost)
+└── prod environment/  # Environment para producción (Render)
+```
+
+### Cómo usar la colección
+
+1. **Importar la colección**: En Postman, click en Import y seleccionar el archivo de `postman/collection/`
+2. **Importar environments**: Importar `dev environment/` y `prod environment/`
+3. **Seleccionar environment**: Elegir "Development" o "Production" desde el dropdown de Postman
+4. **Usar los endpoints**: Todos los endpoints están configurados con las variables `{{base_url}}` y `{{access_token}}`
+
+### Variables de los Environments
+
+| Variable    | Dev                      | Prod                           |
+| ----------- | ------------------------ | ------------------------------ |
+| base_url    | http://localhost:3000   | https://conexa-challenge-w05m.onrender.com/    |
+| access_token| (se completa automáticamente al hacer login) | 	(se completa automáticamente al hacer login)
+
 
 
