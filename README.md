@@ -114,7 +114,7 @@ npx prisma generate
 npx prisma migrate dev --name init
 
 # Ejecutar seed (crear usuario admin)
-npx prisma db seed
+npx prisma db insert-admin.seed
 ```
 
 ---
@@ -216,7 +216,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 | Método | Endpoint           | Descripción                    | Rol requerido |
 | ------ | ------------------ | ------------------------------ | ------------- |
 | GET    | `/api/films`       | Listar todas las películas     | REGULAR, ADMIN|
-| GET    | `/api/films/:id`   | Obtener una película por ID   | REGULAR, ADMIN|
+| GET    | `/api/films/:id`   | Obtener una película por ID   | REGULAR |
 | POST   | `/api/films`       | Crear una nueva película       | ADMIN         |
 | PUT    | `/api/films/:id`   | Actualizar una película        | ADMIN         |
 | DELETE | `/api/films/:id`   | Eliminar una película          | ADMIN         |
@@ -317,15 +317,7 @@ El proyecto está configurado para deploy en **Render** utilizando **Neon** como
 
 Render es una plataforma de cloud que permite deployar aplicaciones backend de forma gratuita y escalable.
 
-1. Crear un servicio en Render:
-   - Ir a https://render.com
-   - Crear un nuevo "Web Service"
-   - Conectar con el repositorio de GitHub
-   - Configurar:
-     - **Build Command**: `npm run build`
-     - **Start Command**: `npm run start:prod`
-
-2. Variables de entorno en Render:
+1. Variables de entorno en Render:
 
    - **DATABASE_URL**: Connection string de Neon
    - **JWT_SECRET**: Secret para JWT
@@ -335,26 +327,5 @@ Render es una plataforma de cloud que permite deployar aplicaciones backend de f
 
 Neon es una base de datos PostgreSQL serverless en la nube.
 
-1. Crear cuenta en https://neon.tech
-2. Crear un nuevo proyecto
-3. Copiar la connection string y configurarla en:
-   - Archivo `.env` local (para desarrollo)
-   - Variables de entorno de Render (para producción)
 
----
 
-## 📝 Decisiones de Diseño
-
-1. **Patrón Repository**: Separation of concerns con FilmRepository y UserRepository para operaciones de base de datos.
-2. **Módulo Global de Prisma**: PrismaService está disponible en toda la aplicación sin necesidad de imports explícitos.
-3. **ValidationPipe global**: Se validan todos los DTOs automáticamente con `whitelist: true` para ignorar propiedades no definidas.
-4. **Exception Filters**: Filtros globales para manejo estandarizado de errores HTTP y de Prisma.
-5. **DTOs con class-validator**: Validación de entrada declarativa y documentación automática con Swagger.
-6. **Roles como Decoradores**: Uso de decoradores TypeScript para definir permisos a nivel de controlador.
-7. **Domain-Driven Design**: Estructura organizada por dominios (film, user) con controllers, services y repositories separados.
-
----
-
-## 📄 Licencia
-
-MIT
