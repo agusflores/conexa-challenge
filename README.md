@@ -1,98 +1,213 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Backend Challenge - Conexa
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+REST API desarrollada con NestJS para la gestión de películas de Star Wars, incluyendo autenticación JWT, autorización por roles e integración con la API externa SWAPI.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🛠️ Stack Tecnológico
 
-## Description
+| Tecnología          | Descripción                                                         |
+| ------------------- | ------------------------------------------------------------------- |
+| **NestJS**          | Framework de Node.js para construir aplicaciones backend escalables |
+| **TypeScript**      | Lenguaje de programación con tipado estático                        |
+| **PostgreSQL**      | Base de datos relacional                                            |
+| **Prisma**          | ORM para PostgreSQL con migrations y seed                           |
+| **Docker Compose**  | Contenedor para PostgreSQL                                          |
+| **JWT + Passport**  | Sistema de autenticación basado en tokens                           |
+| **Swagger/OpenAPI** | Documentación interactiva de la API                                 |
+| **class-validator** | Validación de DTOs                                                  |
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 📁 Estructura del Proyecto
 
-```bash
-$ npm install
+conexa-challenge/
+├── api/ # Handler para Vercel
+│ └── index.ts
+├── prisma/
+│ ├── schema.prisma # Modelo de datos
+│ └── insert-admin.seed.ts # Seed para crear usuario admin
+├── src/
+│ ├── auth/ # Módulo de autenticación
+│ │ ├── auth.controller.ts
+│ │ ├── auth.service.ts
+│ │ ├── auth.module.ts
+│ │ ├── guards/ # JwtAuthGuard, RolesGuard
+│ │ ├── decorators/ # Roles decorator
+│ │ ├── strategies/ # JWT Strategy
+│ │ ├── dto/ # SignUpDTO, SignInDTO
+│ │ └── interfaces/ # JwtPayload
+│ ├── film/ # Módulo de películas
+│ │ ├── film.controller.ts
+│ │ ├── film.service.ts
+│ │ ├── film.module.ts
+│ │ └── dto/ # CreateFilmDTO, UpdateFilmDTO
+│ ├── integration/
+│ │ └── swapi/ # Integración con SWAPI externa
+│ ├── shared/
+│ │ └── prisma/ # PrismaService global
+│ ├── main.ts # Entry point de la aplicación
+│ └── app.module.ts # Módulo raíz
+├── docker-compose.yml # PostgreSQL container
+├── package.json
+├── tsconfig.json
+├── vercel.json # Configuración para Vercel
+└── README.md
+
+---
+
+## 🔧 Configuración del Entorno
+
+### 1. Variables de Entorno
+
+Crear archivo `.env` en la raíz del proyecto:
+
+```env
+# Base de datos (PostgreSQL)
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/challenge_db?schema=public"
+# JWT (Secret para firmar tokens)
+JWT_SECRET="tu-secret-jwt-aqui"
+# SWAPI (URL base de la API externa de Star Wars)
+SWAPI_BASE_URL="https://www.swapi.tech/api"
+2. Levantar PostgreSQL con Docker
+# Iniciar el contenedor de PostgreSQL
+docker-compose up -d
+# Verificar que esté corriendo
+docker-compose ps
+3.安装 dependencias e inicializar base de datos
+# Instalar dependencias
+npm install
+# Generar cliente de Prisma
+npx prisma generate
+# Ejecutar migraciones (crear tablas)
+npx prisma migrate dev --name init
+# Ejecutar seed (crear usuario admin)
+npx prisma db seed
+🚀 Cómo Ejecutar el Proyecto
+Desarrollo (con hot-reload)
+npm run start:dev
+La API estará disponible en: http://localhost:3000
+Producción
+# Compilar
+npm run build
+# Ejecutar
+npm run start:prod
+🔐 Sistema de Autenticación y Autorización
+Flujo de Autenticación
+1. Registro: El usuario se registra con username y password
+2. Login: El usuario inicia sesión y recibe un token JWT
+3. Acceso: Las requests autenticadas incluyen el token en el header: Authorization: Bearer <token>
+Roles de Usuario
+Rol
+ADMIN
+REGULAR
+Componentes de Seguridad
+- JwtAuthGuard: Valida que el token JWT sea válido
+- RolesGuard: Verifica que el usuario tenga el rol requerido
+- Roles Decorator: Define qué roles pueden acceder a cada endpoint
+Usuario Admin por Defecto
+El seed crea un usuario admin automáticamente:
+- Username: admin
+- Password: admin12345
+- Rol: ADMIN
+📌 Endpoints de la API
+Todos los endpoints tienen el prefijo: /api
+Documentación Interactiva
+Accedé a Swagger en: http://localhost:3000/docs
+Autenticación (Públicos)
+Método
+POST
+POST
+Ejemplo: Registro
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username": "juan", "password": "password123"}'
+Ejemplo: Login
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username": "admin", "password": "admin12345"}'
+Respuesta:
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+Películas (Protegidos - Requieren JWT)
+Método
+GET
+GET
+POST
+PUT
+DELETE
+POST
+Ejemplo: Listar películas (con token)
+curl -X GET http://localhost:3000/api/films \
+  -H "Authorization: Bearer <TU_TOKEN_JWT>"
+Ejemplo: Crear película (solo ADMIN)
+curl -X POST http://localhost:3000/api/films \
+  -H "Authorization: Bearer <TU_TOKEN_JWT>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "A New Hope",
+    "episodeId": 4,
+    "director": "George Lucas",
+    "producer": "Gary Kurtz, Rick McCallum",
+    "openingCrawl": "It is a period of civil war...",
+    "releaseDate": "1977-05-25"
+  }'
+Ejemplo: Sincronizar con SWAPI (solo ADMIN)
+curl -X POST http://localhost:3000/api/films/sync \
+  -H "Authorization: Bearer <TU_TOKEN_JWT>"
+🔗 Integración con SWAPI
+La aplicación se integra con la API pública de Star Wars: https://www.swapi.tech
+Qué hace el endpoint /films/sync:
+1. Consigue la lista de todas las películas de SWAPI
+2. Para cada película, obtiene los detalles completos
+3. Upsert (inserta o actualiza) cada película en la base de datos local
+4. Usa el campo externalId para relacionar los registros con la fuente externa
+¿Por qué SWAPI?
+- Es una API pública y gratuita de Star Wars
+- Permite sincronizar datos externos a nuestra base de datos local
+- Es un ejemplo de integración con APIs externas en tiempo real
+💾 Modelo de Datos
+Tabla: User
+Campo
+id
+username
+password
+role
+createdAt
+Tabla: Film
+Campo
+id
+title
+episodeId
+director
+producer
+releaseDate
+openingCrawl
+externalId
+createdAt
+updatedAt
+✅ Tests
+# Ejecutar todos los tests
+npm run test
+# Ejecutar tests con coverage
+npm run test:cov
+# Ejecutar tests e2e
+npm run test:e2e
+☁️ Deployment en Vercel
+El proyecto está configurado para deploy en Vercel con handler serverless.
+Archivos de configuración:
+- vercel.json: Define el build y las rutas
+- api/index.ts: Handler de Vercel para NestJS
+Variables de entorno en Vercel:
+Configurá en el dashboard de Vercel:
+- DATABASE_URL: Connection string de Neon/Supabase
+- JWT_SECRET: Secret para JWT
+- SWAPI_BASE_URL: https://www.swapi.tech/api
+📝 Decisiones de Diseño
+1. Módulo Global de Prisma: PrismaService está disponible en toda la aplicación sin necesidad de imports explícitos.
+2. ValidationPipe global: Se validan todos los DTOs automáticamente con whitelist: true para ignorar propiedades no definidas.
+3. Patrón Repository: FilmService usa directamente PrismaClient para operaciones de base de datos (en proyectos más grandes, separaríamos en repository).
+4. DTOs con class-validator: Validación de entrada declarativa y documentación automática con Swagger.
+5. Roles como Decoradores: Uso de decoradores TypeScript para definir permisos a nivel de controlador.
+📄 Licencia
+MIT
 ```
-
-## Compile and run the project
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
