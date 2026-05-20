@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '@/shared/prisma/prisma.service';
 import { CreateFilmDTO } from './dto/create-film-dto';
 import { UpdateFilmDTO } from './dto/update-film-dto';
@@ -12,7 +16,11 @@ export class FilmService {
   ) {}
 
   async findAll() {
-    return this.prisma.film.findMany();
+    return this.prisma.film.findMany({
+      orderBy: {
+        episodeId: 'asc',
+      },
+    });
   }
 
   async findOne(id: string) {
@@ -30,6 +38,8 @@ export class FilmService {
   }
 
   async create(createFilmDTO: CreateFilmDTO) {
+    this.validateReleaseDate(createFilmDTO.releaseDate);
+    await this.validateUniqueEpisodeId(createFilmDTO.episodeId);
     return this.prisma.film.create({
       data: {
         title: createFilmDTO.title,
@@ -43,8 +53,9 @@ export class FilmService {
   }
 
   async update(id: string, updateFilmDTO: UpdateFilmDTO) {
+    this.validateReleaseDate(updateFilmDTO.releaseDate);
+    await this.validateUniqueEpisodeId(updateFilmDTO.episodeId, id);
     await this.findOne(id);
-
     return this.prisma.film.update({
       where: {
         id,
@@ -88,10 +99,8 @@ export class FilmService {
 
   async syncFilms() {
     const swapiFilms = await this.swapiService.getFilms();
-    console.log(swapiFilms);
     for (const swapiFilm of swapiFilms) {
       const film = await this.swapiService.getFilmById(swapiFilm.uid);
-      console.log(film);
       await this.prisma.film.upsert({
         where: {
           externalId: film.uid,
@@ -120,5 +129,35 @@ export class FilmService {
       message: 'Las películas fueron sincronizadas exitosamente',
       synced: swapiFilms.length,
     };
+  }
+
+  private validateReleaseDate(releaseDate?: string) {
+    if (releaseDate && new Date(releaseDate) > new Date()) {
+      throw new ConflictException('La fecha de lanzamiento no es válida');
+    }
+  }
+
+  private async validateUniqueEpisodeId(
+    episodeId?: number,
+    excludeId?: string,
+  ) {
+    const existingFilm = await this.prisma.film.findFirst({
+      where: {
+        episodeId,
+        ...(excludeId
+          ? {
+              id: {
+                not: excludeId,
+              },
+            }
+          : {}),
+      },
+    });
+
+    if (existingFilm) {
+      throw new ConflictException(
+        `La película con episodeId ${episodeId} ya existe`,
+      );
+    }
   }
 }
