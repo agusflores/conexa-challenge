@@ -12,7 +12,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   const config = new DocumentBuilder()
-    .setTitle('Conexa - Backend NEST Challenge')
+    .setTitle('Conexa - Backend NestJS Challenge')
     .setDescription(
       'API RESTful para la gestión de películas de Star Wars.\n\n' +
         '- 🔑 Usuario Admin: admin / admin12345\n' +
