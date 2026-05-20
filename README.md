@@ -14,7 +14,7 @@ REST API desarrollada con NestJS para la gestión de películas de Star Wars, in
 | **JWT + Passport**  | Sistema de autenticación basado en tokens                           |
 | **Swagger/OpenAPI** | Documentación interactiva de la API                                 |
 | **class-validator** | Validación de DTOs                                                  |
-| **Render**          | Platforma de deployment (servidor)                                 |
+| **Render**          | Plataforma de deployment (servidor)                                 |
 | **Neon**            | Base de datos PostgreSQL en la nube                                 |
 
 ---
@@ -23,31 +23,50 @@ REST API desarrollada con NestJS para la gestión de películas de Star Wars, in
 
 ```
 conexa-challenge/
-├── prisma/                     
-│   ├── schema.prisma           
-│   └── insert-admin.seed.ts    
+├── prisma/
+│   ├── schema.prisma
+│   └── insert-admin.seed.ts
 ├── src/
-│   ├── auth/                   
+│   ├── auth/
 │   │   ├── auth.controller.ts
 │   │   ├── auth.service.ts
 │   │   ├── auth.module.ts
-│   │   ├── guards/             
-│   │   ├── decorators/         
-│   │   ├── strategies/         
-│   │   ├── dto/                
-│   │   └── interfaces/         
-│   ├── film/                   
-│   │   ├── film.controller.ts
-│   │   ├── film.service.ts
-│   │   ├── film.module.ts
-│   │   └── dto/                
+│   │   ├── guards/
+│   │   ├── decorators/
+│   │   ├── strategies/
+│   │   ├── dto/
+│   │   └── interfaces/
+│   ├── common/
+│   │   └── filters/
+│   │       ├── http-exception.filter.ts
+│   │       └── prisma-exception.filter.ts
+│   ├── domain/
+│   │   ├── film/
+│   │   │   ├── controllers/
+│   │   │   │   └── film.controller.ts
+│   │   │   ├── services/
+│   │   │   │   └── film.service.ts
+│   │   │   ├── repositories/
+│   │   │   │   └── film.repository.ts
+│   │   │   ├── dto/
+│   │   │   │   ├── create-film.dto.ts
+│   │   │   │   └── update-film.dto.ts
+│   │   │   └── film.module.ts
+│   │   └── user/
+│   │       ├── controllers/
+│   │       │   └── user.controller.ts
+│   │       ├── services/
+│   │       │   └── user.service.ts
+│   │       ├── repositories/
+│   │       │   └── user.repository.ts
+│   │       └── user.module.ts
 │   ├── integration/
-│   │   └── swapi/              
+│   │   └── swapi/
 │   ├── shared/
-│   │   └── prisma/             
-│   ├── main.ts                 
-│   └── app.module.ts           
-├── docker-compose.yml          
+│   │   └── prisma/
+│   ├── main.ts
+│   └── app.module.ts
+├── docker-compose.yml
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -95,7 +114,7 @@ npx prisma generate
 npx prisma migrate dev --name init
 
 # Ejecutar seed (crear usuario admin)
-npx prisma db insert-admin.seed
+npx prisma db seed
 ```
 
 ---
@@ -134,7 +153,7 @@ npm run start:prod
 
 | Rol      | Descripción                              |
 | -------- | ---------------------------------------- |
-| ADMIN    | Acceso completo a todos los endpoints    |
+| ADMIN    | Acceso completo a todos los endpoint     |
 | REGULAR  | Acceso limitado solo a lectura           |
 
 ### Componentes de Seguridad
@@ -145,7 +164,7 @@ npm run start:prod
 
 ### Usuario Admin por Defecto
 
-El seed (insert-admin.seed) crea un usuario admin automáticamente:
+El seed crea un usuario admin automáticamente:
 
 - **Username**: admin
 - **Password**: admin12345
@@ -159,7 +178,7 @@ Todos los endpoints tienen el prefijo: `/api`
 
 ### Documentación Interactiva
 
-Accedé a Swagger localmente en: http://localhost:3000/docs o https://conexa-challenge-w05m.onrender.com/docs
+Accedé a Swagger en: http://localhost:3000/docs
 
 ### Autenticación (Públicos)
 
@@ -197,7 +216,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 | Método | Endpoint           | Descripción                    | Rol requerido |
 | ------ | ------------------ | ------------------------------ | ------------- |
 | GET    | `/api/films`       | Listar todas las películas     | REGULAR, ADMIN|
-| GET    | `/api/films/:id`   | Obtener una película por ID    | REGULAR, ADMIN|
+| GET    | `/api/films/:id`   | Obtener una película por ID   | REGULAR, ADMIN|
 | POST   | `/api/films`       | Crear una nueva película       | ADMIN         |
 | PUT    | `/api/films/:id`   | Actualizar una película        | ADMIN         |
 | DELETE | `/api/films/:id`   | Eliminar una película          | ADMIN         |
@@ -210,26 +229,24 @@ curl -X GET http://localhost:3000/api/films \
   -H "Authorization: Bearer <TU_TOKEN_JWT>"
 ```
 
-**Ejemplo: Crear película (solo ADMIN)**
-
-```bash
-curl -X POST http://localhost:3000/api/films \
-  -H "Authorization: Bearer <TU_TOKEN_JWT>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "A New Hope",
-    "episodeId": 4,
-    "director": "George Lucas",
-    "producer": "Gary Kurtz, Rick McCallum",
-    "openingCrawl": "It is a period of civil war...",
-    "releaseDate": "1977-05-25"
-  }'
-```
-
 **Ejemplo: Sincronizar con SWAPI (solo ADMIN)**
 
 ```bash
 curl -X POST http://localhost:3000/api/films/sync \
+  -H "Authorization: Bearer <TU_TOKEN_JWT>"
+```
+
+### Usuarios (Protegidos - Solo ADMIN)
+
+| Método | Endpoint           | Descripción                    | Rol requerido |
+| ------ | ------------------ | ------------------------------ | ------------- |
+| GET    | `/api/users`       | Listar todos los usuarios     | ADMIN         |
+| GET    | `/api/users/:id`   | Obtener un usuario por ID     | ADMIN         |
+
+**Ejemplo: Listar usuarios (solo ADMIN)**
+
+```bash
+curl -X GET http://localhost:3000/api/users \
   -H "Authorization: Bearer <TU_TOKEN_JWT>"
 ```
 
@@ -300,7 +317,15 @@ El proyecto está configurado para deploy en **Render** utilizando **Neon** como
 
 Render es una plataforma de cloud que permite deployar aplicaciones backend de forma gratuita y escalable.
 
-1. Variables de entorno en Render:
+1. Crear un servicio en Render:
+   - Ir a https://render.com
+   - Crear un nuevo "Web Service"
+   - Conectar con el repositorio de GitHub
+   - Configurar:
+     - **Build Command**: `npm run build`
+     - **Start Command**: `npm run start:prod`
+
+2. Variables de entorno en Render:
 
    - **DATABASE_URL**: Connection string de Neon
    - **JWT_SECRET**: Secret para JWT
@@ -310,12 +335,26 @@ Render es una plataforma de cloud que permite deployar aplicaciones backend de f
 
 Neon es una base de datos PostgreSQL serverless en la nube.
 
+1. Crear cuenta en https://neon.tech
+2. Crear un nuevo proyecto
+3. Copiar la connection string y configurarla en:
+   - Archivo `.env` local (para desarrollo)
+   - Variables de entorno de Render (para producción)
+
 ---
 
 ## 📝 Decisiones de Diseño
 
-1. **Módulo Global de Prisma**: PrismaService está disponible en toda la aplicación sin necesidad de imports explícitos.
-2. **ValidationPipe global**: Se validan todos los DTOs automáticamente con `whitelist: true` para ignorar propiedades no definidas.
-3. **Patrón Repository**: FilmService usa directamente PrismaClient para operaciones de base de datos.
-4. **DTOs con class-validator**: Validación de entrada declarativa y documentación automática con Swagger.
-5. **Roles como Decoradores**: Uso de decoradores TypeScript para definir permisos a nivel de controlador.
+1. **Patrón Repository**: Separation of concerns con FilmRepository y UserRepository para operaciones de base de datos.
+2. **Módulo Global de Prisma**: PrismaService está disponible en toda la aplicación sin necesidad de imports explícitos.
+3. **ValidationPipe global**: Se validan todos los DTOs automáticamente con `whitelist: true` para ignorar propiedades no definidas.
+4. **Exception Filters**: Filtros globales para manejo estandarizado de errores HTTP y de Prisma.
+5. **DTOs con class-validator**: Validación de entrada declarativa y documentación automática con Swagger.
+6. **Roles como Decoradores**: Uso de decoradores TypeScript para definir permisos a nivel de controlador.
+7. **Domain-Driven Design**: Estructura organizada por dominios (film, user) con controllers, services y repositories separados.
+
+---
+
+## 📄 Licencia
+
+MIT
