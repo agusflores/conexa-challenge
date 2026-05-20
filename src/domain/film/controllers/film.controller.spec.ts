@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FilmController } from './film.controller';
-import { FilmService } from './film.service';
+import { FilmService } from '../services/film.service';
 
 describe('FilmController', () => {
   let controller: FilmController;
@@ -22,7 +22,7 @@ describe('FilmController', () => {
   beforeEach(async () => {
     const mockFilmService = {
       findAll: jest.fn(),
-      findOne: jest.fn(),
+      findById: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
       remove: jest.fn(),
@@ -48,11 +48,11 @@ describe('FilmController', () => {
     });
   });
 
-  describe('findOne', () => {
+  describe('findById', () => {
     it('debería retornar una película por id', async () => {
-      filmService.findOne.mockResolvedValue(mockFilm);
+      filmService.findById.mockResolvedValue(mockFilm);
 
-      const result = await controller.findOne('film-123');
+      const result = await controller.findById('film-123');
 
       expect(result).toEqual(mockFilm);
     });
