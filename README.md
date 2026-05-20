@@ -23,31 +23,31 @@ REST API desarrollada con NestJS para la gestión de películas de Star Wars, in
 
 ```
 conexa-challenge/
-├── prisma/                     # Configuración de Prisma
-│   ├── schema.prisma           # Modelo de datos
-│   └── insert-admin.seed.ts    # Seed para crear usuario admin
+├── prisma/                     
+│   ├── schema.prisma           
+│   └── insert-admin.seed.ts    
 ├── src/
-│   ├── auth/                   # Módulo de autenticación
+│   ├── auth/                   
 │   │   ├── auth.controller.ts
 │   │   ├── auth.service.ts
 │   │   ├── auth.module.ts
-│   │   ├── guards/             # JwtAuthGuard, RolesGuard
-│   │   ├── decorators/         # Roles decorator
-│   │   ├── strategies/         # JWT Strategy
-│   │   ├── dto/                # SignUpDTO, SignInDTO
-│   │   └── interfaces/         # JwtPayload
-│   ├── film/                   # Módulo de películas
+│   │   ├── guards/             
+│   │   ├── decorators/         
+│   │   ├── strategies/         
+│   │   ├── dto/                
+│   │   └── interfaces/         
+│   ├── film/                   
 │   │   ├── film.controller.ts
 │   │   ├── film.service.ts
 │   │   ├── film.module.ts
-│   │   └── dto/                # CreateFilmDTO, UpdateFilmDTO
+│   │   └── dto/                
 │   ├── integration/
-│   │   └── swapi/              # Integración con SWAPI externa
+│   │   └── swapi/              
 │   ├── shared/
-│   │   └── prisma/             # PrismaService global
-│   ├── main.ts                 # Entry point de la aplicación
-│   └── app.module.ts           # Módulo raíz
-├── docker-compose.yml          # PostgreSQL container
+│   │   └── prisma/             
+│   ├── main.ts                 
+│   └── app.module.ts           
+├── docker-compose.yml          
 ├── package.json
 ├── tsconfig.json
 └── README.md
@@ -66,7 +66,7 @@ Crear archivo `.env` en la raíz del proyecto:
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/challenge_db?schema=public"
 
 # JWT (Secret para firmar tokens)
-JWT_SECRET="tu-secret-jwt-aqui"
+JWT_SECRET="tu-secret-jwt"
 
 # SWAPI (URL base de la API externa de Star Wars)
 SWAPI_BASE_URL="https://www.swapi.tech/api"
@@ -95,7 +95,7 @@ npx prisma generate
 npx prisma migrate dev --name init
 
 # Ejecutar seed (crear usuario admin)
-npx prisma db seed
+npx prisma db insert-admin.seed
 ```
 
 ---
@@ -145,7 +145,7 @@ npm run start:prod
 
 ### Usuario Admin por Defecto
 
-El seed crea un usuario admin automáticamente:
+El seed (insert-admin.seed) crea un usuario admin automáticamente:
 
 - **Username**: admin
 - **Password**: admin12345
@@ -159,7 +159,7 @@ Todos los endpoints tienen el prefijo: `/api`
 
 ### Documentación Interactiva
 
-Accedé a Swagger en: http://localhost:3000/docs
+Accedé a Swagger localmente en: http://localhost:3000/docs o https://conexa-challenge-w05m.onrender.com/docs
 
 ### Autenticación (Públicos)
 
@@ -197,7 +197,7 @@ curl -X POST http://localhost:3000/api/auth/login \
 | Método | Endpoint           | Descripción                    | Rol requerido |
 | ------ | ------------------ | ------------------------------ | ------------- |
 | GET    | `/api/films`       | Listar todas las películas     | REGULAR, ADMIN|
-| GET    | `/api/films/:id`   | Obtener una película por ID   | REGULAR, ADMIN|
+| GET    | `/api/films/:id`   | Obtener una película por ID    | REGULAR, ADMIN|
 | POST   | `/api/films`       | Crear una nueva película       | ADMIN         |
 | PUT    | `/api/films/:id`   | Actualizar una película        | ADMIN         |
 | DELETE | `/api/films/:id`   | Eliminar una película          | ADMIN         |
@@ -246,12 +246,6 @@ La aplicación se integra con la API pública de Star Wars: https://www.swapi.te
 3. Upsert (inserta o actualiza) cada película en la base de datos local
 4. Usa el campo `externalId` para relacionar los registros con la fuente externa
 
-### ¿Por qué SWAPI?
-
-- Es una API pública y gratuita de Star Wars
-- Permite sincronizar datos externos a nuestra base de datos local
-- Es un ejemplo de integración con APIs externas en tiempo real
-
 ---
 
 ## 💾 Modelo de Datos
@@ -262,13 +256,13 @@ La aplicación se integra con la API pública de Star Wars: https://www.swapi.te
 | --------- | --------- | -------------------------- |
 | id        | UUID      | Identificador único        |
 | username  | String    | Nombre de usuario (único)  |
-| password  | String    | Contraseña hasheada         |
+| password  | String    | Contraseña hasheada        |
 | role      | Enum      | Rol del usuario            |
 | createdAt | DateTime  | Fecha de creación          |
 
 ### Tabla: Film
 
-| Campo        | Tipo      | Descripción                     |
+| Campo        | Tipo      | Descripción                    |
 | ------------ | --------- | ------------------------------ |
 | id           | UUID      | Identificador único            |
 | title        | String    | Título de la película          |
@@ -306,15 +300,7 @@ El proyecto está configurado para deploy en **Render** utilizando **Neon** como
 
 Render es una plataforma de cloud que permite deployar aplicaciones backend de forma gratuita y escalable.
 
-1. Crear un servicio en Render:
-   - Ir a https://render.com
-   - Crear un nuevo "Web Service"
-   - Conectar con el repositorio de GitHub
-   - Configurar:
-     - **Build Command**: `npm run build`
-     - **Start Command**: `npm run start:prod`
-
-2. Variables de entorno en Render:
+1. Variables de entorno en Render:
 
    - **DATABASE_URL**: Connection string de Neon
    - **JWT_SECRET**: Secret para JWT
@@ -324,24 +310,12 @@ Render es una plataforma de cloud que permite deployar aplicaciones backend de f
 
 Neon es una base de datos PostgreSQL serverless en la nube.
 
-1. Crear cuenta en https://neon.tech
-2. Crear un nuevo proyecto
-3. Copiar la connection string y configurarla en:
-   - Archivo `.env` local (para desarrollo)
-   - Variables de entorno de Render (para producción)
-
 ---
 
 ## 📝 Decisiones de Diseño
 
 1. **Módulo Global de Prisma**: PrismaService está disponible en toda la aplicación sin necesidad de imports explícitos.
 2. **ValidationPipe global**: Se validan todos los DTOs automáticamente con `whitelist: true` para ignorar propiedades no definidas.
-3. **Patrón Repository**: FilmService usa directamente PrismaClient para operaciones de base de datos (en proyectos más grandes, separaríamos en repository).
+3. **Patrón Repository**: FilmService usa directamente PrismaClient para operaciones de base de datos.
 4. **DTOs con class-validator**: Validación de entrada declarativa y documentación automática con Swagger.
 5. **Roles como Decoradores**: Uso de decoradores TypeScript para definir permisos a nivel de controlador.
-
----
-
-## 📄 Licencia
-
-MIT
