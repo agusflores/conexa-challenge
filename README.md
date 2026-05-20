@@ -48,7 +48,6 @@ conexa-challenge/
 ├── docker-compose.yml          # PostgreSQL container
 ├── package.json
 ├── tsconfig.json
-├── vercel.json                 # Configuración para Vercel
 └── README.md
 ```
 
