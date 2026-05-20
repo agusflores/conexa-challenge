@@ -12,11 +12,7 @@ export class FilmService {
   ) {}
 
   async findAll() {
-    return this.prisma.film.findMany({
-      orderBy: {
-        episodeId: 'asc',
-      },
-    });
+    return this.prisma.film.findMany();
   }
 
   async findOne(id: string) {
@@ -27,26 +23,26 @@ export class FilmService {
     });
 
     if (!film) {
-      throw new NotFoundException('Film not found');
+      throw new NotFoundException('La película no existe');
     }
 
     return film;
   }
 
-  async create(dto: CreateFilmDTO) {
+  async create(createFilmDTO: CreateFilmDTO) {
     return this.prisma.film.create({
       data: {
-        title: dto.title,
-        episodeId: dto.episodeId,
-        director: dto.director,
-        producer: dto.producer,
-        openingCrawl: dto.openingCrawl,
-        releaseDate: new Date(dto.releaseDate),
+        title: createFilmDTO.title,
+        episodeId: createFilmDTO.episodeId,
+        director: createFilmDTO.director,
+        producer: createFilmDTO.producer,
+        openingCrawl: createFilmDTO.openingCrawl,
+        releaseDate: new Date(createFilmDTO.releaseDate),
       },
     });
   }
 
-  async update(id: string, dto: UpdateFilmDTO) {
+  async update(id: string, updateFilmDTO: UpdateFilmDTO) {
     await this.findOne(id);
 
     return this.prisma.film.update({
@@ -54,23 +50,23 @@ export class FilmService {
         id,
       },
       data: {
-        ...(dto.title && {
-          title: dto.title,
+        ...(updateFilmDTO.title && {
+          title: updateFilmDTO.title,
         }),
-        ...(dto.episodeId && {
-          episodeId: dto.episodeId,
+        ...(updateFilmDTO.episodeId && {
+          episodeId: updateFilmDTO.episodeId,
         }),
-        ...(dto.director && {
-          director: dto.director,
+        ...(updateFilmDTO.director && {
+          director: updateFilmDTO.director,
         }),
-        ...(dto.producer && {
-          producer: dto.producer,
+        ...(updateFilmDTO.producer && {
+          producer: updateFilmDTO.producer,
         }),
-        ...(dto.openingCrawl && {
-          openingCrawl: dto.openingCrawl,
+        ...(updateFilmDTO.openingCrawl && {
+          openingCrawl: updateFilmDTO.openingCrawl,
         }),
-        ...(dto.releaseDate && {
-          releaseDate: new Date(dto.releaseDate),
+        ...(updateFilmDTO.releaseDate && {
+          releaseDate: new Date(updateFilmDTO.releaseDate),
         }),
       },
     });
@@ -86,7 +82,7 @@ export class FilmService {
     });
 
     return {
-      message: 'Film deleted successfully',
+      message: 'La película fue eliminada exitosamente',
     };
   }
 
@@ -121,7 +117,7 @@ export class FilmService {
     }
 
     return {
-      message: 'Films synchronized successfully',
+      message: 'Las películas fueron sincronizadas exitosamente',
       synced: swapiFilms.length,
     };
   }

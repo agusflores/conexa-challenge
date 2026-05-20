@@ -19,22 +19,22 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signUp(dto: SignUpDTO) {
+  async signUp(signUpDTO: SignUpDTO) {
     const userExists = await this.prisma.user.findUnique({
       where: {
-        username: dto.username,
+        username: signUpDTO.username,
       },
     });
 
     if (userExists) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException('El usuario ya existe');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const hashedPassword = await bcrypt.hash(signUpDTO.password, 10);
 
     const user = await this.prisma.user.create({
       data: {
-        username: dto.username,
+        username: signUpDTO.username,
         password: hashedPassword,
         role: Role.REGULAR,
       },
@@ -43,27 +43,30 @@ export class AuthService {
     return this.generateToken(user);
   }
 
-  async signIn(dto: SignInDTO) {
+  async signIn(signInDTO: SignInDTO) {
     const user = await this.prisma.user.findUnique({
       where: {
-        username: dto.username,
+        username: signInDTO.username,
       },
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const validPassword = await bcrypt.compare(dto.password, user.password);
+    const validPassword = await bcrypt.compare(
+      signInDTO.password,
+      user.password,
+    );
 
     if (!validPassword) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Credenciales inválidas');
     }
 
     return this.generateToken(user);
   }
 
-  private generateToken(user: { id: string; username: string; role: string }) {
+  private generateToken(user: { id: string; username: string; role: Role }) {
     const payload: JwtPayload = {
       sub: user.id,
       username: user.username,
