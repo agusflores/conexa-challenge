@@ -68,6 +68,11 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/$1",
+      "^@auth/(.*)$": "<rootDir>/auth/$1",
+      "^@integration/(.*)$": "<rootDir>/integration/$1"
+    },
     "moduleFileExtensions": [
       "js",
       "json",
