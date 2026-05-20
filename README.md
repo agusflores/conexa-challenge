@@ -14,6 +14,8 @@ REST API desarrollada con NestJS para la gestión de películas de Star Wars, in
 | **JWT + Passport**  | Sistema de autenticación basado en tokens                           |
 | **Swagger/OpenAPI** | Documentación interactiva de la API                                 |
 | **class-validator** | Validación de DTOs                                                  |
+| **Render**          | Platforma de deployment (servidor)                                 |
+| **Neon**            | Base de datos PostgreSQL en la nube                                 |
 
 ---
 
@@ -48,7 +50,6 @@ conexa-challenge/
 ├── docker-compose.yml          # PostgreSQL container
 ├── package.json
 ├── tsconfig.json
-├── vercel.json                 # Configuración para Vercel
 └── README.md
 ```
 
@@ -297,22 +298,37 @@ npm run test:e2e
 
 ---
 
-## ☁️ Deployment en Vercel
+## ☁️ Deployment en Render
 
-El proyecto está configurado para deploy en Vercel con handler serverless.
+El proyecto está configurado para deploy en **Render** utilizando **Neon** como base de datos.
 
-### Archivos de configuración
+### Render
 
-- `vercel.json`: Define el build y las rutas
-- `api/index.ts`: Handler de Vercel para NestJS
+Render es una plataforma de cloud que permite deployar aplicaciones backend de forma gratuita y escalable.
 
-### Variables de entorno en Vercel
+1. Crear un servicio en Render:
+   - Ir a https://render.com
+   - Crear un nuevo "Web Service"
+   - Conectar con el repositorio de GitHub
+   - Configurar:
+     - **Build Command**: `npm run build`
+     - **Start Command**: `npm run start:prod`
 
-Configurá en el dashboard de Vercel:
+2. Variables de entorno en Render:
 
-- **DATABASE_URL**: Connection string de Neon/Supabase
-- **JWT_SECRET**: Secret para JWT
-- **SWAPI_BASE_URL**: https://www.swapi.tech/api
+   - **DATABASE_URL**: Connection string de Neon
+   - **JWT_SECRET**: Secret para JWT
+   - **SWAPI_BASE_URL**: https://www.swapi.tech/api
+
+### Neon (Base de datos)
+
+Neon es una base de datos PostgreSQL serverless en la nube.
+
+1. Crear cuenta en https://neon.tech
+2. Crear un nuevo proyecto
+3. Copiar la connection string y configurarla en:
+   - Archivo `.env` local (para desarrollo)
+   - Variables de entorno de Render (para producción)
 
 ---
 
