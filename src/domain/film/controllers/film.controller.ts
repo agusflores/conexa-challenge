@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
   UseGuards,
@@ -81,7 +82,7 @@ export class FilmController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.REGULAR)
   @Get(':id')
-  findById(@Param('id') id: string) {
+  findById(@Param('id', ParseUUIDPipe) id: string) {
     return this.filmService.findById(id);
   }
 
@@ -135,7 +136,7 @@ export class FilmController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateFilmDTO) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateFilmDTO) {
     return this.filmService.update(id, dto);
   }
 
@@ -153,7 +154,7 @@ export class FilmController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.filmService.remove(id);
   }
 }
