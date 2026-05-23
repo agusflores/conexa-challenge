@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -22,7 +23,7 @@ import { Role } from '@prisma/client';
 import { FilmService } from '../services/film.service';
 import { CreateFilmDTO } from '../dto/create-film.dto';
 import { UpdateFilmDTO } from '../dto/update-film.dto';
-
+import { FilmQueryDTO } from '../dto/film-query.dto';
 @ApiTags('Films')
 @ApiBearerAuth()
 @Controller('films')
@@ -40,8 +41,8 @@ export class FilmController {
   })
   @UseGuards(JwtAuthGuard)
   @Get()
-  findAll() {
-    return this.filmService.findAll();
+  findAll(@Query() query: FilmQueryDTO) {
+    return this.filmService.findAll(query);
   }
 
   @ApiOperation({

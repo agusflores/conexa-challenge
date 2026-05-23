@@ -8,6 +8,10 @@ import { SwapiService } from '@/integration/swapi/swapi.service';
 import { FilmRepository } from '../repositories/film.repository';
 import { CreateFilmDTO } from '../dto/create-film.dto';
 import { UpdateFilmDTO } from '../dto/update-film.dto';
+import { FilmDTO } from '../dto/film.dto';
+import { plainToInstance } from 'class-transformer';
+import { FilmQueryDTO } from '../dto/film-query.dto';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class FilmService {
@@ -16,10 +20,50 @@ export class FilmService {
     private readonly swapiService: SwapiService,
   ) {}
 
-  async findAll() {
-    return this.filmRepository.findAll({
-      episodeId: 'asc',
-    });
+  async findAll(query: FilmQueryDTO) {
+    const { page, limit, title, director } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.FilmWhereInput = {
+      ...(title && {
+        title: {
+          contains: title,
+          mode: 'insensitive',
+        },
+      }),
+      ...(director && {
+        director: {
+          contains: director,
+          mode: 'insensitive',
+        },
+      }),
+    };
+
+    const [films, total] = await Promise.all([
+      this.filmRepository.findAll(
+        where,
+        {
+          episodeId: 'asc',
+        },
+        skip,
+        limit,
+      ),
+
+      this.filmRepository.count(where),
+    ]);
+
+    return {
+      data: plainToInstance(FilmDTO, films, {
+        excludeExtraneousValues: true,
+      }),
+
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findById(id: string) {
@@ -31,7 +75,9 @@ export class FilmService {
       throw new NotFoundException('La película no existe');
     }
 
-    return film;
+    return plainToInstance(FilmDTO, film, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async create(createFilmDTO: CreateFilmDTO) {
@@ -124,6 +170,7 @@ export class FilmService {
         synced: swapiFilms.length,
       };
     } catch (error) {
+      console.log(error);
       throw new ConflictException('Error al sincronizar películas');
     }
   }
