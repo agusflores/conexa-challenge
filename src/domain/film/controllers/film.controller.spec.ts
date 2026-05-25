@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { FilmController } from './film.controller';
 import { FilmService } from '../services/film.service';
+import { PaginatedFilmDTO } from '../dto/paginated-film.dto';
+import { FilmDTO } from '../dto/film.dto';
+import { PaginationMetaDTO } from '@/common/dto/pagination-meta.dto';
 
 describe('FilmController', () => {
   let controller: FilmController;
@@ -18,6 +21,17 @@ describe('FilmController', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
   };
+
+  const mockFilmDTO = Object.assign(new FilmDTO(), {
+    id: 'film-123',
+    title: 'A New Hope',
+    episodeId: 4,
+    director: 'George Lucas',
+    producer: 'Gary Kurtz',
+    releaseDate: new Date('1977-05-25'),
+    openingCrawl: 'It is a period of civil war...',
+    externalId: '4',
+  });
 
   beforeEach(async () => {
     const mockFilmService = {
@@ -39,12 +53,26 @@ describe('FilmController', () => {
   });
 
   describe('findAll', () => {
-    it('debería retornar todas las películas', async () => {
-      filmService.findAll.mockResolvedValue([mockFilm]);
+    it('debería retornar todas las películas paginadas', async () => {
+      const paginatedResult = new PaginatedFilmDTO(
+        [mockFilmDTO],
+        new PaginationMetaDTO(50, 1, 10),
+      );
+      filmService.findAll.mockResolvedValue(paginatedResult);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll({
+        page: 1,
+        limit: 10,
+      });
 
-      expect(result).toEqual([mockFilm]);
+      expect(result).toBeInstanceOf(PaginatedFilmDTO);
+      expect(result.data).toHaveLength(1);
+      expect(result.meta).toEqual({
+        total: 50,
+        page: 1,
+        limit: 10,
+        totalPages: 5,
+      });
     });
   });
 
