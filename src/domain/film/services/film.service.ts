@@ -81,7 +81,6 @@ export class FilmService {
   }
 
   async create(createFilmDTO: CreateFilmDTO) {
-    this.validateReleaseDate(createFilmDTO.releaseDate);
     await this.validateUniqueEpisodeId(createFilmDTO.episodeId);
     return this.filmRepository.create({
       title: createFilmDTO.title,
@@ -94,7 +93,6 @@ export class FilmService {
   }
 
   async update(id: string, updateFilmDTO: UpdateFilmDTO) {
-    this.validateReleaseDate(updateFilmDTO.releaseDate);
     await this.validateUniqueEpisodeId(updateFilmDTO.episodeId, id);
     await this.findById(id);
     return this.filmRepository.update(
@@ -172,12 +170,6 @@ export class FilmService {
     } catch (error) {
       console.log(error);
       throw new ConflictException('Error al sincronizar películas');
-    }
-  }
-
-  private validateReleaseDate(releaseDate?: string) {
-    if (releaseDate && new Date(releaseDate) > new Date()) {
-      throw new ConflictException('La fecha de lanzamiento no es válida');
     }
   }
 

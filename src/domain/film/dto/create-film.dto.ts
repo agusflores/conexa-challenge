@@ -8,6 +8,7 @@ import {
 
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsNotFutureDate } from '@/common/validators/not-future-date.decorator';
 
 export class CreateFilmDTO {
   @ApiProperty({ example: 'A New Hope', description: 'Título de la película' })
@@ -50,5 +51,6 @@ export class CreateFilmDTO {
     description: 'Fecha de estreno',
   })
   @IsDateString()
+  @IsNotFutureDate()
   releaseDate!: string;
 }
