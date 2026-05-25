@@ -11,7 +11,9 @@ import { UpdateFilmDTO } from '../dto/update-film.dto';
 import { FilmDTO } from '../dto/film.dto';
 import { plainToInstance } from 'class-transformer';
 import { FilmQueryDTO } from '../dto/film-query.dto';
+import { PaginatedFilmDTO } from '../dto/paginated-film.dto';
 import { Prisma } from '@prisma/client';
+import { PaginationMetaDTO } from '@/common/dto/pagination-meta.dto';
 
 @Injectable()
 export class FilmService {
@@ -52,18 +54,12 @@ export class FilmService {
       this.filmRepository.count(where),
     ]);
 
-    return {
-      data: plainToInstance(FilmDTO, films, {
+    return new PaginatedFilmDTO(
+      plainToInstance(FilmDTO, films, {
         excludeExtraneousValues: true,
       }),
-
-      meta: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
+      new PaginationMetaDTO(total, page, limit),
+    );
   }
 
   async findById(id: string) {
