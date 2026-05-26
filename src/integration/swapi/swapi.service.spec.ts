@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
+import { ConfigService } from '@nestjs/config';
 import { SwapiService } from './swapi.service';
 import { of } from 'rxjs';
 
@@ -10,10 +11,14 @@ describe('SwapiService', () => {
     const mockHttpService = {
       get: jest.fn(),
     };
+    const mockConfigService = {
+      getOrThrow: jest.fn().mockReturnValue('https://swapi.dev/api'),
+    };
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         SwapiService,
         { provide: HttpService, useValue: mockHttpService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     }).compile();
     service = module.get<SwapiService>(SwapiService);

@@ -8,6 +8,12 @@ import { SwapiService } from '@/integration/swapi/swapi.service';
 import { FilmRepository } from '../repositories/film.repository';
 import { CreateFilmDTO } from '../dto/create-film.dto';
 import { UpdateFilmDTO } from '../dto/update-film.dto';
+import { FilmDTO } from '../dto/film.dto';
+import { plainToInstance } from 'class-transformer';
+import { FilmQueryDTO } from '../dto/film-query.dto';
+import { PaginatedFilmDTO } from '../dto/paginated-film.dto';
+import { Prisma } from '@prisma/client';
+import { PaginationMetaDTO } from '@/common/dto/pagination-meta.dto';
 
 @Injectable()
 export class FilmService {
@@ -16,10 +22,44 @@ export class FilmService {
     private readonly swapiService: SwapiService,
   ) {}
 
-  async findAll() {
-    return this.filmRepository.findAll({
-      episodeId: 'asc',
-    });
+  async findAll(query: FilmQueryDTO) {
+    const { page, limit, title, director } = query;
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.FilmWhereInput = {
+      ...(title && {
+        title: {
+          contains: title,
+          mode: 'insensitive',
+        },
+      }),
+      ...(director && {
+        director: {
+          contains: director,
+          mode: 'insensitive',
+        },
+      }),
+    };
+
+    const [films, total] = await Promise.all([
+      this.filmRepository.findAll(
+        where,
+        {
+          episodeId: 'asc',
+        },
+        skip,
+        limit,
+      ),
+
+      this.filmRepository.count(where),
+    ]);
+
+    return new PaginatedFilmDTO(
+      plainToInstance(FilmDTO, films, {
+        excludeExtraneousValues: true,
+      }),
+      new PaginationMetaDTO(total, page, limit),
+    );
   }
 
   async findById(id: string) {
@@ -31,11 +71,12 @@ export class FilmService {
       throw new NotFoundException('La película no existe');
     }
 
-    return film;
+    return plainToInstance(FilmDTO, film, {
+      excludeExtraneousValues: true,
+    });
   }
 
   async create(createFilmDTO: CreateFilmDTO) {
-    this.validateReleaseDate(createFilmDTO.releaseDate);
     await this.validateUniqueEpisodeId(createFilmDTO.episodeId);
     return this.filmRepository.create({
       title: createFilmDTO.title,
@@ -48,7 +89,6 @@ export class FilmService {
   }
 
   async update(id: string, updateFilmDTO: UpdateFilmDTO) {
-    this.validateReleaseDate(updateFilmDTO.releaseDate);
     await this.validateUniqueEpisodeId(updateFilmDTO.episodeId, id);
     await this.findById(id);
     return this.filmRepository.update(
@@ -124,13 +164,8 @@ export class FilmService {
         synced: swapiFilms.length,
       };
     } catch (error) {
+      console.log(error);
       throw new ConflictException('Error al sincronizar películas');
-    }
-  }
-
-  private validateReleaseDate(releaseDate?: string) {
-    if (releaseDate && new Date(releaseDate) > new Date()) {
-      throw new ConflictException('La fecha de lanzamiento no es válida');
     }
   }
 

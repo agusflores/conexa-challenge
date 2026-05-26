@@ -6,9 +6,23 @@ import { Film, Prisma } from '@prisma/client';
 export class FilmRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(orderBy?: Prisma.FilmOrderByWithRelationInput): Promise<Film[]> {
+  findAll(
+    where?: Prisma.FilmWhereInput,
+    orderBy?: Prisma.FilmOrderByWithRelationInput,
+    skip?: number,
+    take?: number,
+  ): Promise<Film[]> {
     return this.prisma.film.findMany({
+      where,
       orderBy: orderBy || { episodeId: 'asc' },
+      skip,
+      take,
+    });
+  }
+
+  count(where?: Prisma.FilmWhereInput): Promise<number> {
+    return this.prisma.film.count({
+      where,
     });
   }
 

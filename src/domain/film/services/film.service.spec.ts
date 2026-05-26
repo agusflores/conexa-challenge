@@ -3,6 +3,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SwapiService } from '@/integration/swapi/swapi.service';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 import { FilmRepository } from '../repositories/film.repository';
+import { FilmDTO } from '../dto/film.dto';
+import { PaginatedFilmDTO } from '../dto/paginated-film.dto';
 import { FilmService } from './film.service';
 
 describe('FilmService', () => {
@@ -26,6 +28,7 @@ describe('FilmService', () => {
   beforeEach(async () => {
     const mockFilmRepository = {
       findAll: jest.fn(),
+      count: jest.fn(),
       findById: jest.fn(),
       findFirst: jest.fn(),
       create: jest.fn(),
@@ -53,15 +56,27 @@ describe('FilmService', () => {
   });
 
   describe('findAll', () => {
-    it('debería retornar todas las películas ordenadas por episodeId', async () => {
+    it('debería retornar todas las películas paginadas ordenadas por episodeId', async () => {
       filmRepository.findAll.mockResolvedValue([mockFilm]);
+      filmRepository.count.mockResolvedValue(50);
 
-      const result = await service.findAll();
+      const result = await service.findAll({ page: 1, limit: 10 });
 
-      expect(result).toEqual([mockFilm]);
-      expect(filmRepository.findAll).toHaveBeenCalledWith({
-        episodeId: 'asc',
+      expect(result).toBeInstanceOf(PaginatedFilmDTO);
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toBeInstanceOf(FilmDTO);
+      expect(result.meta).toEqual({
+        total: 50,
+        page: 1,
+        limit: 10,
+        totalPages: 5,
       });
+      expect(filmRepository.findAll).toHaveBeenCalledWith(
+        {},
+        { episodeId: 'asc' },
+        0,
+        10,
+      );
     });
   });
 
@@ -71,7 +86,10 @@ describe('FilmService', () => {
 
       const result = await service.findById('film-123');
 
-      expect(result).toEqual(mockFilm);
+      expect(result).toBeInstanceOf(FilmDTO);
+      expect(result.id).toBe(mockFilm.id);
+      expect(result.title).toBe(mockFilm.title);
+      expect(result.director).toBe(mockFilm.director);
     });
 
     it('debería lanzar NotFoundException si no existe', async () => {
@@ -111,19 +129,6 @@ describe('FilmService', () => {
           producer: 'Gary Kurtz',
           openingCrawl: 'It is a period of civil war...',
           releaseDate: '1977-05-25',
-        }),
-      ).rejects.toThrow(ConflictException);
-    });
-
-    it('debería lanzar ConflictException si la fecha es futura', async () => {
-      await expect(
-        service.create({
-          title: 'Future Film',
-          episodeId: 10,
-          director: 'Director',
-          producer: 'Producer',
-          openingCrawl: 'Text',
-          releaseDate: '2099-01-01',
         }),
       ).rejects.toThrow(ConflictException);
     });

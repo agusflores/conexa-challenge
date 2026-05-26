@@ -4,16 +4,20 @@ import { firstValueFrom } from 'rxjs';
 import { SwapiFilmDTO } from './dto/swapi-film.dto';
 import { SwapiFilmsResponseDTO } from './dto/swapi-films-response.dto';
 import { SwapiFilmResponseDTO } from './dto/swapi-film-response.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SwapiService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async getFilms(): Promise<SwapiFilmDTO[]> {
     try {
       const response = await firstValueFrom(
         this.httpService.get<SwapiFilmsResponseDTO>(
-          `${process.env.SWAPI_BASE_URL}/films`,
+          `${this.configService.getOrThrow<string>('SWAPI_BASE_URL')}/films`,
         ),
       );
 
@@ -31,7 +35,7 @@ export class SwapiService {
     try {
       const response = await firstValueFrom(
         this.httpService.get<SwapiFilmResponseDTO>(
-          `${process.env.SWAPI_BASE_URL}/films/${id}`,
+          `${this.configService.getOrThrow<string>('SWAPI_BASE_URL')}/films/${id}`,
         ),
       );
 
